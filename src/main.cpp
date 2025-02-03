@@ -41,7 +41,24 @@ public:
         screen.Loop(layout);
     }
 
+// Input (main) Tab
 private:
+    Component InputTab()
+    {
+        m_inputTable = InputTable(m_inputStrData, IntegerValidator);
+
+        Component layout = Container::Horizontal({
+            ControlPanel() | yflex_grow | borderRounded,
+            m_inputTable | frame | flex_grow,
+            Container::Vertical({
+                AnimatedButton("Sort", [&] { DoSort(); })
+            }),
+            OutputTable() | frame | flex_grow
+        }) | flex_grow;
+
+        return layout;
+    }
+
     Component ControlPanel()
     {
         auto hasSelectedArray = [&] { return m_selectedDataId != -1; };
@@ -84,38 +101,6 @@ private:
         });
     }
 
-    Component InputTab()
-    {
-        m_inputTable = InputTable(m_inputStrData, IntegerValidator);
-
-        Component layout = Container::Horizontal({
-            ControlPanel() | yflex_grow | borderRounded,
-            m_inputTable | frame | flex_grow,
-            Container::Vertical({
-                AnimatedButton("Sort", [&] { DoSort(); })
-            }),
-            OutputTable() | frame | flex_grow
-        }) | flex_grow;
-
-        return layout;
-    }
-
-    Component SelectFromDBTab()
-    {
-        auto options = MenuOption::Vertical();
-        auto apply = [&] { ApplySelectedArray(); m_tabSelector = Tabs::Input; };
-        options.on_enter = apply;
-
-        Component layout = Container::Horizontal({
-            AnimatedButton("Select", apply) | border,
-            Container::Vertical({
-                Menu(&m_dataSelection, &m_selectedDataId, std::move(options))
-            }) | border | flex_grow
-        });
-
-        return layout;
-    }
-
     Component DatabaseWindow()
     {
         return Renderer([&] {
@@ -129,11 +114,6 @@ private:
             });
             return window(text(" Database "), content);
         });
-    }
-
-    Component AnimatedButton(const std::string& lable, std::function<void()> onClick)
-    {
-        return Button(lable, onClick, ButtonOption::Animated(0xeee4da_rgb, 0x776e65_rgb));
     }
 
     void DoSort()
@@ -208,6 +188,31 @@ private:
         }
 
         m_selectedDataId = 0;
+    }
+
+// Select From DB Tab
+private:
+    Component SelectFromDBTab()
+    {
+        auto options = MenuOption::Vertical();
+        auto apply = [&] { ApplySelectedArray(); m_tabSelector = Tabs::Input; };
+        options.on_enter = apply;
+
+        Component layout = Container::Horizontal({
+            AnimatedButton("Select", apply) | border,
+            Container::Vertical({
+                Menu(&m_dataSelection, &m_selectedDataId, std::move(options))
+            }) | border | flex_grow
+        });
+
+        return layout;
+    }
+
+// Common components
+private:
+    Component AnimatedButton(const std::string& lable, std::function<void()> onClick)
+    {
+        return Button(lable, onClick, ButtonOption::Animated(0xeee4da_rgb, 0x776e65_rgb));
     }
 
 private:
