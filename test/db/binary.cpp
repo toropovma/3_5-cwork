@@ -26,15 +26,20 @@ public:
     {
         static std::random_device rd;
         static std::mt19937 mt(rd());
-        static std::uniform_int_distribution dist;
+        static std::uniform_int_distribution<size_t> sizeDist(5, 100);
+        static std::uniform_int_distribution<int> valueDist;
 
         for (int i = 0; i < size; i++)
         {
             Data data;
 
-            data.original.push_back(dist(mt));
-            data.sorted = data.original;
-            std::sort(data.sorted.begin(), data.sorted.end());
+            size_t size = sizeDist(mt);
+            for (int i = 0; i < size; i++)
+            {
+                data.original.push_back(valueDist(mt));
+                data.sorted = data.original;
+                std::sort(data.sorted.begin(), data.sorted.end());
+            }
 
             db.Add(data);
         }
